@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// 1. comprovamos si existe la sesión, si no creamos un array vacío
+// 1. comprobamos si existe la sesión, si no creamos un array vacío
 if (!isset($_SESSION['alumnos'])) {
     $_SESSION['alumnos'] = [];
 }

@@ -10,7 +10,7 @@ class Persona {
         $this->email = $email;
     }
 
-    //geters
+    //geters  
     public function getDNI() {
         return $this->DNI;
     }
@@ -31,6 +31,8 @@ class Persona {
     public function setEmail($email) {
         $this->email = $email;
     }
+
+    
 
     //mostrar datos
     public function mostrarDatos() {
