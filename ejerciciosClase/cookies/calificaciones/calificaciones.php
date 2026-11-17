@@ -26,6 +26,7 @@ session_start();
         <button type="submit">Añadir</button>
     </form>
     <h1>Lista de alumnos</h1>
+    <h1>Notas</h1>
     <table>
         <thead>
             <tr>
