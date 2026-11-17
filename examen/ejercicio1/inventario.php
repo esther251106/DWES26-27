@@ -1,101 +1,136 @@
 <?php
-
-class Inventario
-{
+class Producto {
     private $id;
     private $nombre;
+    private $categoria;
     private $precio;
     private $stock;
-    private $categoria;
-    private $estado;
-    private $datosDeEntrada = [];
 
-
-
-    //constructor
-    public function __construct($id, $nombre, $categoria, $precio, $stock, $estado)
-    {
+    public function __construct($id, $nombre, $categoria, $precio, $stock) {
         $this->id = $id;
         $this->nombre = $nombre;
         $this->categoria = $categoria;
         $this->precio = $precio;
         $this->stock = $stock;
-        $this->estado = $estado;
-        $this->datosDeEntrada = [
-            ["id" => 1, "nombre" => "Portátil Gaming", "precio" => 1199.99, "stock" => 10, "categoria" => "Electrónica"],
-            ["id" => 2, "nombre" => "Ratón Inalámbrico", "precio" => 45.50, "stock" => 3, "categoria" => "Electrónica"],
-            ["id" => 3, "nombre" => "Teclado Mecánico", "precio" => 89.90, "stock" => 0, "categoria" => "Electrónica"],
-            ["id" => 4, "nombre" => "Silla de Oficina", "precio" => 150.00, "stock" => 7, "categoria" => "Muebles"],
-            ["id" => 5, "nombre" => "Cafetera Express", "precio" => 79.95, "stock" => 12, "categoria" => "Electrodomésticos"]
-        ];
     }
 
-    //metodos
-    //getters
+    public function getId() { return $this->id; }
+    public function getNombre() { return $this->nombre; }
+    public function getCategoria() { return $this->categoria; }
+    public function getPrecio() { return $this->precio; }
+    public function getStock() { return $this->stock; }
 
-    //setters
-
-
-    //insertar datos de array
-    public function insertarDatos($datosDeEntrada)
-    {
-        foreach ($datosDeEntrada as $item) {
-            $this->id = $item['0'];
-            $this->nombre = $item[1];
-            $this->precio = $item[2];
-            $this->stock = $item[3];
-            $this->categoria = $item[5];
+    public function getEstado() {
+        if ($this->stock == 0) {
+            return "Agotado";
+        } elseif ($this->stock <= 3) {
+            return "Stock bajo";
+        } else {
+            return "Disponible";
         }
-    }
-
-    public function mostrarDatosTabla($datosDeEntrada)
-    {
-        echo "<tr>";
-        echo "<td>" . $datosDeEntrada['id'] . "</td>";
     }
 }
 
+class Inventario {
+    private $productos = [];
+
+    public function agregarProducto(Producto $producto) {
+        $this->productos[] = $producto;
+    }
+
+    public function getProductos() {
+        return $this->productos;
+    }
+    //productos disponibles
+    public function obtenerProductosDisponibles() {
+        return array_filter($this->productos, function($p) {
+            return $p->getStock() > 0;
+        });
+    }   
+    //total stock
+    public function calcularValorTotalStock() {
+        $total = 0;
+        foreach ($this->productos as $p) {
+            $total += $p->getPrecio() * $p->getStock();
+        }
+        return $total;
+    }
+    //buscar p x id
+    public function buscarProductoPorId($id) {
+        foreach ($this->productos as $p) {
+            if ($p->getId() == $id) {
+                return $p;
+            }
+        }
+        return null;
+    }
+    //ob nombres p
+    public function obtenerNombresProductos() {
+        return array_map(function($p) {
+            return $p->getNombre();
+        }, $this->productos);
+    }
+    //no duplicados
+    public function obtenerCategoriasUnicas() {
+        $categorias = array_map(function($p) {
+            return $p->getCategoria();
+        }, $this->productos);
+        return array_unique($categorias);
+    }
+}
+
+$inventario = new Inventario();
+$inventario->agregarProducto(new Producto(1, "Portátil Gaming", "Electrónica", 1199.99, 10));
+$inventario->agregarProducto(new Producto(1, "Ratón Inalámbrico", "Electrónica", 45.50, 3));
+$inventario->agregarProducto(new Producto(3, "Teclado Mecánico", "Electrónica", 89.90, 0));
+$inventario->agregarProducto(new Producto(2, "Silla de Oficina", "Muebles", 150.00, 7));
+$inventario->agregarProducto(new Producto(4, "Cafetera Express", "Electrodomésticos", 79.90, 12));
 
 ?>
 
-
-
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario</title>
+    <title>Panel de Inventario</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
 </head>
-
 <body>
-    <h1>Panel de inventario</h1>
-    <h1>Mostrar nombre</h1>
 
-    <h3>Total de stock</h3>
-    <!--funcion total de stock-->
+    <h2>Panel de Inventario</h2>
 
-    <h3>Categorias</h3>
-    <!--funcion total de mostrar categorias-->
+    <p><strong>Total Stock:</strong> <?php echo number_format($inventario->calcularValorTotalStock(), 2, ',', '.'); ?> €</p>
+    <p><strong>Categorías:</strong> <?php echo implode(', ', $inventario->obtenerCategoriasUnicas()); ?></p>
 
-    <h1>tabla</h1>
     <table>
         <thead>
             <tr>
-                <td>ID</td>
-                <td>Nombre</td>
-                <td>Categoria</td>
-                <td>Precio</td>
-                <td>Stock</td>
-                <td>Estado</td>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
             </tr>
         </thead>
         <tbody>
-
-
+            <?php foreach ($inventario->getProductos() as $producto): ?>
+            <tr>
+                <td><?php echo $producto->getId(); ?></td>
+                <td><?php echo $producto->getNombre(); ?></td>
+                <td><?php echo $producto->getCategoria(); ?></td>
+                <td><?php echo number_format($producto->getPrecio(), 2, ',', '.'); ?> €</td>
+                <td><?php echo $producto->getStock(); ?></td>
+                <td><?php echo $producto->getEstado(); ?></td>
+            </tr>
+            <?php endforeach; ?>
         </tbody>
     </table>
-</body>
 
+</body>
 </html>
